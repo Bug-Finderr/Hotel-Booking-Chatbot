@@ -1,26 +1,30 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
 
-const getMessages = async () => {
-    const options = {
-        method: 'POST',
-        body: JSON.stringify({
-            message: 'Hello, sir!'      // Will have a message from the input
-        }),
-        headers: {
-            'Content-Type': 'application/json'
+const App: React.FC = () => {
+    const [ messages, setMessages ] = useState(null)
+    const [ inputVal, setInputVal ] = useState('')
+
+    const getMessages = async () => {
+        const options = {
+            method: 'POST',
+            body: JSON.stringify({
+                message: inputVal     // Will have a message from the input
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+        try {
+            const response = await fetch('http://localhost:8000/chat', options)
+            const data = await response.json()
+            // console.log(data)
+            setMessages(data)
+        } catch (error) {
+            console.error(error);
         }
     }
-    try {
-        const response = await fetch('http://localhost:8000/chat', options)
-        const data = await response.json()
-        console.log(data)
-    } catch (error) {
-        console.error(error);
-    }
-}
 
-const App: React.FC = () => {
     return (
         <div className="app">
             <section className="side-bar">
@@ -38,7 +42,7 @@ const App: React.FC = () => {
                 <ul className="feed"></ul>
                 <div className="bottom-section">
                     <div className="input-container">
-                        <input />
+                        <input value={inputVal} onChange={(event) => setInputVal(event.target.value)}/>
                         <div id="submit" onClick={getMessages}>⪢</div>
                     </div>
                     <p className="info">Be sure to set up the API key before usage</p>

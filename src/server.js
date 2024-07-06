@@ -1,6 +1,9 @@
+/* global process */
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+
+// Reference: https://platform.openai.com/docs/api-reference/chat
 
 dotenv.config()
 
@@ -20,7 +23,7 @@ app.post('/chat', async (req, res) => {
                 model: 'gpt-4o',
                 messages: [{
                         role: 'user',
-                        content: 'Hey sir'
+                        content: req.body.message
                     }]
             })
         }
