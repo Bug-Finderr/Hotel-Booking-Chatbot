@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import sequelize from "../../config/db.js";
+import sequelize from "../config/database.js";
 import User from "./user.js";
 
 // todo: review this file

@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import sequelize from "./config/db.js";
+import sequelize from "./config/database.js";
 import {createRoom, getAllRooms, sendMessage, getAllMessages} from "./controllers/chatController.ts";
 
 dotenv.config();
