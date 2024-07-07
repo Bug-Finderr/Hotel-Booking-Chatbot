@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import sequelize from "../../config/db.js";
-import User from "../User.js";
+import sequelize from "../config/database.js";
+import User from "./user.js";
 
 // Define the attributes for the Message model
 interface MessageAttributes {
