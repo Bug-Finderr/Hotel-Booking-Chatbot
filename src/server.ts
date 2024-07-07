@@ -1,6 +1,7 @@
-import dotenv from "dotenv";
-import express, { Request, Response } from "express";
-import bodyParser from "body-parser";
+import dotenv from 'dotenv';
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 import sequelize from "./config/db.js";
 import {createRoom, getAllRooms, sendMessage, getAllMessages} from "./controllers/chatController.ts";
 
@@ -8,6 +9,7 @@ dotenv.config();
 
 const app = express();
 const PORT = 6969;
+app.use(cors());
 app.use(bodyParser.json());
 
 // Define routes

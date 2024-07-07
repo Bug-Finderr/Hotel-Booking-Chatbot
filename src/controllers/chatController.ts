@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import ChatRoom from "../models/chatRoom.js";
-import Message from "../models/Chat/Messages.js";
+import { Request, Response } from 'express';
+import ChatRoom from '../models/chatRoom.js';
+import Message from '../models/messages.js';
 import { format } from "../utils/messages.js";
 import { talkToBot } from "./botController.js";
 
