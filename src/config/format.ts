@@ -7,7 +7,7 @@ interface FormattedMessage {
 }
 
 // Formats messages for AI processing. Returns a promise that resolves to an array of formatted messages.
-const format = async (roomId: string): Promise<FormattedMessage[]> => {
+const format = async (roomId: number): Promise<FormattedMessage[]> => {
     // Retrieve messages from the database for the given roomId, ordered by creation date
     const messages = await Message.findAll({
         where: { roomId },
