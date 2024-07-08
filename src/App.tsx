@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
+import bot from './assets/bot2.png';
 
 type Chat = {
     title: string;
@@ -50,6 +51,8 @@ const App: React.FC = () => {
             content: inputVal,
         };
 
+        setInputVal('');
+
         const updatedChats = [...previousChats, newMessage];
 
         setPreviousChats(updatedChats);
@@ -94,18 +97,27 @@ const App: React.FC = () => {
                 <ul className="feed">
                     {currentChats.map((chatItem, index) => (
                         <li key={index}>
-                            <p className="role">{chatItem.role}</p>
+                            <img src={bot} alt='assistant'/>
                             <p>{chatItem.content}</p>
                         </li>
                     ))}
                 </ul>
                 <div className="bottom-section">
-                    <div className="input-container">
+                    {/* <div className="input-container">
                         <input value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
                         <div id="submit" onClick={formSubmit}>
                             ⪢
                         </div>
-                    </div>
+                    </div> */}
+                    <form className="input-container" onSubmit={(e) => {
+                        e.preventDefault(); // Prevent the default form submission
+                        formSubmit(); // Call your formSubmit function
+                    }}>
+                        <input value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
+                        <div id="submit" onClick={formSubmit}>
+                            ⪢
+                        </div>
+                    </form>
                     <p className="info">Be sure to set up the API key before usage</p>
                 </div>
             </section>
