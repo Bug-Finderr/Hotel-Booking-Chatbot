@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import bot from './assets/bot2.png';
 
@@ -46,7 +46,7 @@ const App: React.FC = () => {
 
     const formSubmit = async () => {
         const newMessage = {
-            title: currentTitle,
+            title: currentTitle || inputVal,
             role: 'user',
             content: inputVal,
         };
@@ -57,7 +57,7 @@ const App: React.FC = () => {
 
         setPreviousChats(updatedChats);
 
-        const formattedMessages = updatedChats.map((message) => ({
+        const formattedMessages = updatedChats.filter(chat => chat.title === (currentTitle || inputVal)).map((message) => ({
             role: message.role,
             content: message.content,
         }));
@@ -67,17 +67,28 @@ const App: React.FC = () => {
         setPreviousChats((prevChats) => [
             ...prevChats,
             {
-                title: currentTitle,
+                title: currentTitle || inputVal,
                 role: 'assistant',
                 content: response.content,
             },
         ]);
 
         setMessage(response);
+
+        if (!currentTitle) {
+            setCurrentTitle(inputVal);
+        }
     };
 
     const currentChats = previousChats.filter((chat) => chat.title === currentTitle);
     const uniqueTitles = Array.from(new Set(previousChats.map((chat) => chat.title)));
+
+    useEffect(() => {
+        const feed = document.querySelector('.feed');
+        if (feed) {
+          feed.scrollTop = feed.scrollHeight;
+        }
+    }, [currentChats]); // Automatically scroll down when currentChats updates
 
     return (
         <div className="app">
@@ -86,7 +97,7 @@ const App: React.FC = () => {
                 <ul className="history">
                     {uniqueTitles.map((title, index) => (
                         <li key={index} onClick={() => handleClick(title)}>
-                            {title}
+                            {title.split(' ').slice(0, 3).join(' ')}
                         </li>
                     ))}
                 </ul>
@@ -98,17 +109,12 @@ const App: React.FC = () => {
                     {currentChats.map((chatItem, index) => (
                         <li key={index}>
                             <img src={bot} alt='assistant'/>
+                            {/* <p className='role'>{chatItem.role}</p> */}
                             <p>{chatItem.content}</p>
                         </li>
                     ))}
                 </ul>
                 <div className="bottom-section">
-                    {/* <div className="input-container">
-                        <input value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
-                        <div id="submit" onClick={formSubmit}>
-                            ⪢
-                        </div>
-                    </div> */}
                     <form className="input-container" onSubmit={(e) => {
                         e.preventDefault(); // Prevent the default form submission
                         formSubmit(); // Call your formSubmit function
