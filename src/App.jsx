@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import bot from './assets/bot2.png';
 
-type Chat = {
-    title: string;
-    role: string;
-    content: string;
-};
 
-const App: React.FC = () => {
-    const [, setMessage] = useState<Chat | null>(null);
+const App = () => {
+    const [, setMessage] = useState(null);
     const [inputVal, setInputVal] = useState('');
-    const [previousChats, setPreviousChats] = useState<Chat[]>([]);
+    const [previousChats, setPreviousChats] = useState([]);
     const [currentTitle, setCurrentTitle] = useState('');
 
     const createNewChat = () => {
@@ -20,13 +15,13 @@ const App: React.FC = () => {
         setCurrentTitle('');
     };
 
-    const handleClick = (title: string) => {
+    const handleClick = (title) => {
         setCurrentTitle(title);
         setMessage(null);
         setInputVal('');
     };
 
-    const getMessages = async (messages: { role: string; content: string }[]) => {
+    const getMessages = async (messages) => {
         const options = {
             method: 'POST',
             body: JSON.stringify({ messages }),

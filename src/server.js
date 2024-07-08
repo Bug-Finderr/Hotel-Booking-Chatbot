@@ -33,6 +33,52 @@ const functions = [
             required: ['customerName', 'roomId', 'checkInDate', 'checkOutDate'],
         },
     },
+    {
+      name: "getBooking",
+      description:
+        "getBooking retrieves the booking details based on the booking ID",
+      parameters: {
+        type: "object",
+        properties: {
+          bookingId: { type: "string" },
+        },
+        required: ["bookingId"],
+      },
+    },
+    {
+      name: "getBookingByUserId",
+      description:
+        "getBookingByUserId retrieves the booking details based on the userId",
+    },
+    {
+      name: "getAvailableRooms",
+      description:
+        "getAvailableRooms returns a list of available rooms based on the check-in and check-out dates",
+      parameters: {
+        type: "object",
+        properties: {
+          checkInDate: { type: "string" },
+          checkOutDate: { type: "string" },
+        },
+        required: ["checkInDate", "checkOutDate"],
+      },
+    },
+    {
+      name: "cancelBooking",
+      description: "cancelBooking cancels the booking based on the booking ID",
+      parameters: {
+        type: "object",
+        properties: {
+          bookingId: { type: "string" },
+        },
+        required: ["bookingId"],
+      },
+    },
+    {
+      name: "sendConfirmationEmail",
+      description:
+        "sendConfirmationEmail sends a confirmation email to the customer based on the booking ID",
+    },
 ];
 
 async function callFunction({ function_call }) {
