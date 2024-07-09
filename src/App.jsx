@@ -9,6 +9,20 @@ const App = () => {
     const [previousChats, setPreviousChats] = useState([]);
     const [currentTitle, setCurrentTitle] = useState('');
 
+    useEffect(() => {
+        const fetchChats = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/chats');
+                const data = await response.json();
+                setPreviousChats(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchChats();
+    }, []);
+
     const createNewChat = () => {
         setMessage(null);
         setInputVal('');
@@ -98,11 +112,12 @@ const App = () => {
                 </ul>
                 <nav>Made by Bug-Finderr</nav>
             </section>
+
             <section className="main">
-                {!currentTitle && <h1>Chat</h1>}
+                {!currentTitle && <h1>Hotel Booking ChatBot</h1>}
                 <ul className="feed">
                     {currentChats.map((chatItem, index) => (
-                        <li key={index}>
+                        <li className={chatItem.role == 'assistant' ? "li-assistant" : "li-user"} key={index}>
                             <img src={bot} alt='assistant'/>
                             {/* <p className='role'>{chatItem.role}</p> */}
                             <p>{chatItem.content}</p>

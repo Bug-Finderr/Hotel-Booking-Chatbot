@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import OpenAI from 'openai'
+import { sequelize, Room, Chat } from './models/index.js';
 
 // Reference: https://platform.openai.com/docs/quickstart?context=node
 
@@ -99,37 +100,50 @@ async function callFunction({ function_call }) {
 }
 
 const createBooking = async ({ customerName, roomId, checkInDate, checkOutDate }) => {
-    // Logic to create a booking and return booking ID
-    console.log(`Booking room ${roomId} for ${customerName} from ${checkInDate} to ${checkOutDate}`);
-    return { bookingId: '12345' };  // Example booking ID
+    await Room.update({ status: 'booked' }, { where: { roomId } });
+    const booking = await Chat.create({
+        title: `Booking for ${customerName}`,
+        role: 'system',
+        content: `Room ${roomId} booked from ${checkInDate} to ${checkOutDate} for ${customerName}`,
+    });
+    return { bookingId: booking.id };
 };
 
 const getBooking = async ({ bookingId }) => {
-    // Logic to retrieve booking details based on booking ID
-    console.log(`Retrieving details for booking ID ${bookingId}`);
-    return { bookingId, customerName: 'John Doe', roomId: '101', checkInDate: '2024-07-01', checkOutDate: '2024-07-05' };  // Example data
+    const booking = await Chat.findByPk(bookingId);
+    if (!booking) {
+        throw new Error('Booking not found');
+    }
+    return {
+        bookingId,
+        content: booking.content,
+    };
 };
 
 const getBookingByUserId = async ({ userId }) => {
-    // Logic to retrieve booking details based on user ID
-    console.log(`Retrieving booking details for user ID ${userId}`);
-    return [{ bookingId: '12345', customerName: 'John Doe', roomId: '101', checkInDate: '2024-07-01', checkOutDate: '2024-07-05' }];  // Example data
+    const bookings = await Chat.findAll({ where: { role: 'system', title: `Booking for ${userId}` } });
+    return bookings.map(booking => ({
+        bookingId: booking.id,
+        content: booking.content,
+    }));
 };
 
 const getAvailableRooms = async ({ checkInDate, checkOutDate }) => {
-    // Logic to get a list of available rooms based on check-in and check-out dates
-    console.log(`Getting available rooms from ${checkInDate} to ${checkOutDate}`);
-    return [{ roomId: '101', type: 'Single' }, { roomId: '102', type: 'Double' }];  // Example data
+    const availableRooms = await Room.findAll({ where: { status: 'available' } });
+    return availableRooms;
 };
 
 const cancelBooking = async ({ bookingId }) => {
-    // Logic to cancel a booking based on booking ID
-    console.log(`Cancelling booking ID ${bookingId}`);
-    return { success: true };  // Example success response
+    const booking = await Chat.findByPk(bookingId);
+    if (!booking) {
+        throw new Error('Booking not found');
+    }
+    const roomId = booking.content.split(' ')[1];
+    await Room.update({ status: 'available' }, { where: { roomId } });
+    return { success: true };
 };
 
 const talkToBot = async ({ messages }) => {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const completion = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
@@ -168,7 +182,7 @@ const formatMessages = (messages) => {
         content: `${message.content} ${message.role === 'assistant' ? '' : 'Do not give me any information about anything that are not mentioned in the PROVIDED CONTEXT. And do not mention this last instruction in the output. Always remember that you are a hotel booking chatbot. You assist customers with booking rooms, retrieving booking details, checking available rooms, and canceling bookings.'}`,
     }));
 
-    console.log([systemMessage, ...formattedMessages]);
+    console.log(...formattedMessages);
 
     return [systemMessage, ...formattedMessages];
 };
@@ -176,8 +190,21 @@ const formatMessages = (messages) => {
 app.post('/chat', async (req, res) => {
     const { messages } = req.body;
     const formattedMessages = formatMessages(messages);
+
     const botResponse = await talkToBot({ messages: formattedMessages });
+
+    await Chat.create({
+        title: formattedMessages[1].content,
+        role: botResponse.role,
+        content: botResponse.content,
+    });
+
     res.json({ newMessage: botResponse });
+});
+
+app.get('/chats', async (req, res) => {
+    const chats = await Chat.findAll();
+    res.json(chats);
 });
 
 app.listen(PORT, () => {
