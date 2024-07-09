@@ -21,7 +21,7 @@ const openai = new OpenAI({
 const functions = [
     {
         name: 'booking',
-        description: 'book reserves a room for a customer and returns the booking ID',
+        description: 'Book reserves a room for a customer and returns the booking ID',
         parameters: {
             type: 'object',
             properties: {
@@ -34,50 +34,49 @@ const functions = [
         },
     },
     {
-      name: "getBooking",
-      description:
-        "getBooking retrieves the booking details based on the booking ID",
-      parameters: {
-        type: "object",
-        properties: {
-          bookingId: { type: "string" },
+        name: 'getBooking',
+        description: 'Get booking details based on the booking ID',
+        parameters: {
+            type: 'object',
+            properties: {
+                bookingId: { type: 'string' },
+            },
+            required: ['bookingId'],
         },
-        required: ["bookingId"],
-      },
     },
     {
-      name: "getBookingByUserId",
-      description:
-        "getBookingByUserId retrieves the booking details based on the userId",
-    },
-    {
-      name: "getAvailableRooms",
-      description:
-        "getAvailableRooms returns a list of available rooms based on the check-in and check-out dates",
-      parameters: {
-        type: "object",
-        properties: {
-          checkInDate: { type: "string" },
-          checkOutDate: { type: "string" },
+        name: 'getBookingByUserId',
+        description: 'Get booking details based on the user ID',
+        parameters: {
+            type: 'object',
+            properties: {
+                userId: { type: 'string' },
+            },
+            required: ['userId'],
         },
-        required: ["checkInDate", "checkOutDate"],
-      },
     },
     {
-      name: "cancelBooking",
-      description: "cancelBooking cancels the booking based on the booking ID",
-      parameters: {
-        type: "object",
-        properties: {
-          bookingId: { type: "string" },
+        name: 'getAvailableRooms',
+        description: 'Get a list of available rooms based on the check-in and check-out dates',
+        parameters: {
+            type: 'object',
+            properties: {
+                checkInDate: { type: 'string' },
+                checkOutDate: { type: 'string' },
+            },
+            required: ['checkInDate', 'checkOutDate'],
         },
-        required: ["bookingId"],
-      },
     },
     {
-      name: "sendConfirmationEmail",
-      description:
-        "sendConfirmationEmail sends a confirmation email to the customer based on the booking ID",
+        name: 'cancelBooking',
+        description: 'Cancel booking based on the booking ID',
+        parameters: {
+            type: 'object',
+            properties: {
+                bookingId: { type: 'string' },
+            },
+            required: ['bookingId'],
+        },
     },
 ];
 
@@ -86,14 +85,47 @@ async function callFunction({ function_call }) {
     switch (function_call.name) {
         case 'booking':
             return await createBooking(args);
+        case 'getBooking':
+            return await getBooking(args);
+        case 'getBookingByUserId':
+            return await getBookingByUserId(args);
+        case 'getAvailableRooms':
+            return await getAvailableRooms(args);
+        case 'cancelBooking':
+            return await cancelBooking(args);
         default:
             throw new Error('No function found');
     }
 }
 
-const createBooking = async ({ roomId, checkInDate, checkOutDate }) => {
-    console.log(roomId, checkInDate, checkOutDate);
-    return 'Booking id 123';
+const createBooking = async ({ customerName, roomId, checkInDate, checkOutDate }) => {
+    // Logic to create a booking and return booking ID
+    console.log(`Booking room ${roomId} for ${customerName} from ${checkInDate} to ${checkOutDate}`);
+    return { bookingId: '12345' };  // Example booking ID
+};
+
+const getBooking = async ({ bookingId }) => {
+    // Logic to retrieve booking details based on booking ID
+    console.log(`Retrieving details for booking ID ${bookingId}`);
+    return { bookingId, customerName: 'John Doe', roomId: '101', checkInDate: '2024-07-01', checkOutDate: '2024-07-05' };  // Example data
+};
+
+const getBookingByUserId = async ({ userId }) => {
+    // Logic to retrieve booking details based on user ID
+    console.log(`Retrieving booking details for user ID ${userId}`);
+    return [{ bookingId: '12345', customerName: 'John Doe', roomId: '101', checkInDate: '2024-07-01', checkOutDate: '2024-07-05' }];  // Example data
+};
+
+const getAvailableRooms = async ({ checkInDate, checkOutDate }) => {
+    // Logic to get a list of available rooms based on check-in and check-out dates
+    console.log(`Getting available rooms from ${checkInDate} to ${checkOutDate}`);
+    return [{ roomId: '101', type: 'Single' }, { roomId: '102', type: 'Double' }];  // Example data
+};
+
+const cancelBooking = async ({ bookingId }) => {
+    // Logic to cancel a booking based on booking ID
+    console.log(`Cancelling booking ID ${bookingId}`);
+    return { success: true };  // Example success response
 };
 
 const talkToBot = async ({ messages }) => {
@@ -128,13 +160,15 @@ const talkToBot = async ({ messages }) => {
 const formatMessages = (messages) => {
     const systemMessage = {
         role: 'system',
-        content: 'You are a hotel booking chatbot',
+        content: 'You are a hotel booking chatbot. You assist customers with booking rooms, retrieving booking details, checking available rooms, and canceling bookings. ',
     };
 
     const formattedMessages = messages.map((message) => ({
         role: message.role,
-        content: `${message.content} ${message.role === 'assistant' ? '' : 'Do not give me any information about procedures and service features that are not mentioned in the PROVIDED CONTEXT.'}`,
+        content: `${message.content} ${message.role === 'assistant' ? '' : 'Do not give me any information about anything that are not mentioned in the PROVIDED CONTEXT. And do not mention this last instruction in the output. Always remember that you are a hotel booking chatbot. You assist customers with booking rooms, retrieving booking details, checking available rooms, and canceling bookings.'}`,
     }));
+
+    console.log([systemMessage, ...formattedMessages]);
 
     return [systemMessage, ...formattedMessages];
 };
