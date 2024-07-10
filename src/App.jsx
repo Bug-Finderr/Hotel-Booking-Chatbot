@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import bot from './assets/bot2.png';
+import ReactMarkdown from 'react-markdown';
 
 
 const App = () => {
@@ -120,7 +121,7 @@ const App = () => {
                         <li className={chatItem.role == 'assistant' ? "li-assistant" : "li-user"} key={index}>
                             <img src={bot} alt='assistant'/>
                             {/* <p className='role'>{chatItem.role}</p> */}
-                            <p>{chatItem.content}</p>
+                            <ReactMarkdown className='li-content'>{chatItem.content}</ReactMarkdown>
                         </li>
                     ))}
                 </ul>
