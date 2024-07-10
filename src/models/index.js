@@ -24,20 +24,23 @@ const Chat = sequelize.define('Chat', {
 });
 
 const initializeDatabase = async () => {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
 
-    await Room.bulkCreate([
-        { roomId: '101', type: 'Single' },
-        { roomId: '102', type: 'Double' },
-        { roomId: '103', type: 'Single' },
-        { roomId: '104', type: 'Double' },
-        { roomId: '105', type: 'Single' },
-        { roomId: '106', type: 'Double' },
-        { roomId: '107', type: 'Suite' },
-        { roomId: '108', type: 'Single' },
-        { roomId: '109', type: 'Double' },
-        { roomId: '110', type: 'Suite' },
-    ]);
+    const roomCount = await Room.count();
+    if (roomCount === 0) {
+        await Room.bulkCreate([
+            { roomId: '101', type: 'Single' },
+            { roomId: '102', type: 'Double' },
+            { roomId: '103', type: 'Single' },
+            { roomId: '104', type: 'Double' },
+            { roomId: '105', type: 'Single' },
+            { roomId: '106', type: 'Double' },
+            { roomId: '107', type: 'Suite' },
+            { roomId: '108', type: 'Single' },
+            { roomId: '109', type: 'Double' },
+            { roomId: '110', type: 'Suite' },
+        ]);
+    }
 };
 
 initializeDatabase();
